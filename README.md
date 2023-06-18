@@ -15,9 +15,21 @@ This Visual Studio Code extension allows you to easily switch between multiple G
 2. Open the Command Palette (press `Ctrl+Shift+P` or `Cmd+Shift+P` on macOS) and search for `Git User Switcher: Add Git User`.
 3. Enter the username, email address, and SSH key (optional) for the Git user you want to add.
 4. Once added, you can see the current Git user in the status bar on the right side.
-5. To switch between Git users, click on the status bar item and select the desired user from the list.
+5. To switch between Git users, click on the status bar item (Git User: <username>) and select the desired user from the list.
 6. To update a Git user, open the Command Palette and search for `Git User Switcher: Update Git User`. Select the user you want to update and enter the new details.
 7. To delete a Git user, open the Command Palette and search for `Git User Switcher: Delete Git User`. Select the user you want to delete.
+
+## Switching Between Git Users
+
+To switch between Git users, follow these steps:
+
+1. Locate the status bar on the right side of the Visual Studio Code window.
+2. Click on the status bar item displaying the current Git user (Git User: <username>).
+3. A dropdown list will appear, showing all the saved Git usernames.
+4. Select the desired Git user from the list.
+5. The selected Git user will be activated, and their credentials will be used for Git operations.
+
+Please note that switching Git users will affect the Git operations performed in the current workspace.
 
 ## Configuration
 
