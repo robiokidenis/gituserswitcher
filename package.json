@@ -36,7 +36,10 @@
   ],
   "publisher": "robiokidenis",
   "icon": "/icon.png",
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  
   "main": "./dist/extension.js",
   "repository": {
     "type": "git",
@@ -48,14 +51,6 @@
   },
   "homepage": "https://github.com/robiokidenis/gituserswitcher/blob/main/README.md",
   "contributes": {
-    "activationEvents": [
-      "onCommand:gituserswitcher.addGitUser",
-      "onCommand:gituserswitcher.GitUserActivate",
-      "onCommand:gituserswitcher.viewSavedUsernames",
-      "onCommand:gituserswitcher.selectGitUser",
-      "onCommand:gituserswitcher.deleteGitUser",
-      "onCommand:gituserswitcher.updateGitUser"
-    ],
     "commands": [
       {
         "command": "gituserswitcher.GitUserActivate",
