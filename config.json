@@ -1,0 +1,34 @@
+{
+  "gitUsers": [
+    {
+      "username": "robiokidenis-admiral",
+      "email": "robioki.denis@admiral.digital",
+      "sshKey": "admiral"
+    },
+    {
+      "username": "robioki-c6",
+      "email": "robioki@carbon6.io",
+      "sshKey": "id_ed25519"
+    },
+    {
+      "username": "robiokidenis",
+      "email": "robiokidenis@gmail.com",
+      "sshKey": "id_ed25519"
+    },
+    {
+      "username": "robiokidenis-c6",
+      "email": "robioki@carbon6.io",
+      "sshKey": "work_rsa"
+    },
+    {
+      "username": "testing",
+      "email": "test@test.com",
+      "sshKey": "testing123"
+    },
+    {
+      "username": "testing",
+      "email": "testing@gmail.com",
+      "sshKey": "test"
+    }
+  ]
+}
