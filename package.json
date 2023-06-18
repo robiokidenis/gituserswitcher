@@ -35,7 +35,7 @@
     "git identity switch"
   ],
   "publisher": "robiokidenis",
-  "icon": "/src/Icon/merge.png",
+  "icon": "/icon.png",
   "activationEvents": [],
   "main": "./dist/extension.js",
   "repository": {
