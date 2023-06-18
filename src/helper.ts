@@ -1,4 +1,4 @@
-import { exec ,spawn} from "child_process";
+import { exec, spawn } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as path from "path";
@@ -107,9 +107,7 @@ export function switchToGitUser(
               )
               .then((choice) => {
                 if (choice === "Yes") {
-                    vscode.window.showInformationMessage(
-                        "Generating ssh key.."
-                      );
+                  vscode.window.showInformationMessage("Generating ssh key..");
                   generateSshKey(selectedGitUser, absolutePath);
                 }
               });
@@ -133,7 +131,7 @@ export function switchToGitUser(
               }
             } else {
               vscode.window.showInformationMessage(
-                "SSH key added successfully."
+                "Git user switched successfully."
               );
             }
           });
@@ -143,41 +141,43 @@ export function switchToGitUser(
   );
 }
 function generateSshKey(gitUser: GitUser, sshKeyPath: string) {
-    vscode.window
-      .showInputBox({
-        prompt: 'Enter passphrase for SSH key (empty for no passphrase)',
-        password: true,
-      })
-      .then((passphrase) => {
-        const args = ['-t', 'ed25519', '-C', gitUser.email, '-f', sshKeyPath];
-        if (passphrase) {
-          args.push('-N');
-          args.push(passphrase);
-        } else {
-          args.push('-P');
-          args.push('');
-        }
-  
-        const sshKeygen = spawn('ssh-keygen', args);
-  
-        sshKeygen.stdout.on('data', (data) => {
-          // Show the output of the SSH key generation process to the user
-          const output = data.toString().trim();
-          vscode.window.showInformationMessage(output);
-        });
-  
-        sshKeygen.stderr.on('data', (data) => {
-          // Show the error output of the SSH key generation process to the user
-          const error = data.toString().trim();
-          vscode.window.showErrorMessage(error);
-        });
-  
-        sshKeygen.on('close', (code) => {
-          if (code === 0) {
-            vscode.window.showInformationMessage('SSH key generated successfully.');
-          } else {
-            vscode.window.showErrorMessage('Failed to generate SSH key.');
-          }
-        });
+  vscode.window
+    .showInputBox({
+      prompt: "Enter passphrase for SSH key (empty for no passphrase)",
+      password: true,
+    })
+    .then((passphrase) => {
+      const args = ["-t", "ed25519", "-C", gitUser.email, "-f", sshKeyPath];
+      if (passphrase) {
+        args.push("-N");
+        args.push(passphrase);
+      } else {
+        args.push("-P");
+        args.push("");
+      }
+
+      const sshKeygen = spawn("ssh-keygen", args);
+
+      sshKeygen.stdout.on("data", (data) => {
+        // Show the output of the SSH key generation process to the user
+        const output = data.toString().trim();
+        vscode.window.showInformationMessage(output);
       });
-  }
+
+      sshKeygen.stderr.on("data", (data) => {
+        // Show the error output of the SSH key generation process to the user
+        const error = data.toString().trim();
+        vscode.window.showErrorMessage(error);
+      });
+
+      sshKeygen.on("close", (code) => {
+        if (code === 0) {
+          vscode.window.showInformationMessage(
+            "SSH key generated successfully."
+          );
+        } else {
+          vscode.window.showErrorMessage("Failed to generate SSH key.");
+        }
+      });
+    });
+}
