@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import * as os from "os";
+
 import {
   readConfigFile,
   writeConfigFile,
@@ -43,7 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
             gitUsers: [gitUser],
           };
           writeConfigFile(config, CONFIG_FILE_PATH);
-          vscode.window.showInformationMessage(`No saved Git users found. Synchronizing with Git config user: ${currentGitUser}.`);
+          vscode.window.showInformationMessage(
+            `No saved Git users found. Synchronizing with Git config user: ${currentGitUser}.`
+          );
           // Update the status bar item
           updateStatusBarItem(statusBarItem, config);
         });
@@ -61,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
   const addGitUserCommand = vscode.commands.registerCommand(
     "gituserswitcher.addGitUser",
     () => {
+      const absolutePath = path.join(os.homedir(), ".ssh");
       vscode.window
         .showInputBox({ prompt: "Enter new Git username" })
         .then((newUsername) => {
@@ -70,7 +75,10 @@ export function activate(context: vscode.ExtensionContext) {
               .then((newEmail) => {
                 if (newEmail) {
                   vscode.window
-                    .showInputBox({ prompt: "Enter SSH key Name" })
+                    .showInputBox({
+                      prompt: "Enter new SSH key Path",
+                      value: path.join(absolutePath, newUsername + "_key"),
+                    })
                     .then((newSshKey) => {
                       const gitUser: GitUser = {
                         username: newUsername,
@@ -129,7 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
                         if (newEmail) {
                           vscode.window
                             .showInputBox({
-                              prompt: "Enter new SSH key name",
+                              prompt: "Enter new SSH key Path",
                               value: gitUserToUpdate.sshKey,
                             })
                             .then((newSshKey) => {

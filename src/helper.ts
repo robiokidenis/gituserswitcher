@@ -137,7 +137,8 @@ export function switchToGitUser(
           return;
         }
 
-        const absolutePath = path.join(os.homedir(), ".ssh", sshKeyPath);
+        const absolutePath = sshKeyPath;
+        // const absolutePath = path.join(os.homedir(), ".ssh", sshKeyPath);
 
         // Check if the SSH key file exists
         fs.access(absolutePath, fs.constants.F_OK, (err) => {
