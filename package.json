@@ -38,6 +38,15 @@
   "icon": "/src/Icon/merge.png",
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robiokidenis/gituserswitcher"
+  },
+  "bugs": {
+    "url": "https://github.com/robiokidenis/gituserswitcher/issues",
+    "email": "robiokidenis@gmail.com"
+  },
+  "homepage": "https://github.com/robiokidenis/gituserswitcher/blob/main/README.md",
   "contributes": {
     "activationEvents": [
       "onCommand:gituserswitcher.addGitUser",
