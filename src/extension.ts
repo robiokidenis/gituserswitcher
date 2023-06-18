@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
             gitUsers: [gitUser],
           };
           writeConfigFile(config, CONFIG_FILE_PATH);
-          vscode.window.showInformationMessage("No saved Git ssss found.");
+          vscode.window.showInformationMessage(`No saved Git users found. Synchronizing with Git config user: ${currentGitUser}.`);
           // Update the status bar item
           updateStatusBarItem(statusBarItem, config);
         });
@@ -245,7 +245,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(updateGitUserCommand);
 
   // Automatically update the Git user when the extension is activated
-  vscode.commands.executeCommand("gituserswitcher.GitUserActivate");
+  // vscode.commands.executeCommand("gituserswitcher.GitUserActivate");
 }
 
 export function deactivate() {
