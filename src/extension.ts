@@ -7,6 +7,8 @@ import {
   switchToGitUser,
   deleteGitUser,
   getSavedUsernames,
+  getCurrentGitEmail,
+  updateStatusBarItem,
 } from "./helper";
 
 interface GitUser {
@@ -14,7 +16,6 @@ interface GitUser {
   email: string;
   sshKey: string;
 }
-
 
 export function activate(context: vscode.ExtensionContext) {
   const CONFIG_FILE_PATH = path.join(context.extensionPath, "config.json");
@@ -27,56 +28,34 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Read the configuration file on extension activation
   let config = readConfigFile(CONFIG_FILE_PATH);
-
   // If no config is found, try to get the username from git config
-  if (!config) {
+  // If no config is found, try to get the username, email, and sshKey from git config
+  if (!config || config.gitUsers.length < 1) {
     getCurrentGitUser((currentGitUser) => {
       if (currentGitUser) {
-        const gitUser: GitUser = {
-          username: currentGitUser,
-          email: "",
-          sshKey: "",
-        };
-        config = {
-          gitUsers: [gitUser],
-        };
-        writeConfigFile(config, CONFIG_FILE_PATH);
+        getCurrentGitEmail((currentGitEmail) => {
+          const gitUser: GitUser = {
+            username: currentGitUser,
+            email: currentGitEmail || "",
+            sshKey: "",
+          };
+          config = {
+            gitUsers: [gitUser],
+          };
+          writeConfigFile(config, CONFIG_FILE_PATH);
+          vscode.window.showInformationMessage("No saved Git ssss found.");
+          // Update the status bar item
+          updateStatusBarItem(statusBarItem, config);
+        });
       }
-
-      // Update the status bar item
-      const firstGitUser = config?.gitUsers[0];
-      statusBarItem.text = `$(user) Git User: ${
-        firstGitUser?.username || "Unknown"
-      }`;
-      statusBarItem.show();
     });
   } else {
     // Update the status bar item
-    const firstGitUser = config.gitUsers[0];
-    statusBarItem.text = `$(user) Git User: ${
-      firstGitUser?.username || "Unknown"
-    }`;
-    statusBarItem.show();
+    updateStatusBarItem(statusBarItem, config);
   }
 
   statusBarItem.tooltip = "Click to change Git user"; // Hover tooltip
   statusBarItem.command = "gituserswitcher.selectGitUser"; // Command to be executed on click
-
-  // Register a command to update the Git user
-  const gitUserActivateCommand = vscode.commands.registerCommand(
-    "gituserswitcher.GitUserActivate",
-    () => {
-      getCurrentGitUser((currentGitUser) => {
-        const gitUser = config?.gitUsers.find(
-          (user) => user.username === currentGitUser
-        );
-        statusBarItem.text = `$(user) Git User: ${
-          gitUser?.username || "Unknown"
-        }`;
-        statusBarItem.show();
-      });
-    }
-  );
 
   // Register a command to add a new Git user
   const addGitUserCommand = vscode.commands.registerCommand(
@@ -107,6 +86,7 @@ export function activate(context: vscode.ExtensionContext) {
                       }
                       writeConfigFile(config, CONFIG_FILE_PATH);
                       switchToGitUser(gitUser, statusBarItem); // Switch to the new Git user
+                      updateStatusBarItem(statusBarItem, config);
                     });
                 }
               });
@@ -115,65 +95,74 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
   const updateGitUserCommand = vscode.commands.registerCommand(
-	"gituserswitcher.updateGitUser",
-	() => {
-	  const savedUsernames = getSavedUsernames(CONFIG_FILE_PATH);
-	  if (savedUsernames.length === 0) {
-		vscode.window.showInformationMessage("No saved Git usernames found.");
-		return;
-	  }
-  
-	  vscode.window
-		.showQuickPick(savedUsernames, {
-		  placeHolder: "Select a Git username to update",
-		})
-		.then((selectedUsername) => {
-		  if (selectedUsername) {
-			const gitUserToUpdate = config?.gitUsers.find(
-			  (user) => user.username === selectedUsername
-			);
-			if (gitUserToUpdate) {
-			  vscode.window
-				.showInputBox({ prompt: "Enter new Git username", value: gitUserToUpdate.username })
-				.then((newUsername) => {
-				  if (newUsername) {
-					vscode.window
-					  .showInputBox({ prompt: "Enter new Git email", value: gitUserToUpdate.email })
-					  .then((newEmail) => {
-						if (newEmail) {
-						  vscode.window
-							.showInputBox({ prompt: "Enter new SSH key name", value: gitUserToUpdate.sshKey })
-							.then((newSshKey) => {
-							  const updatedGitUser: GitUser = {
-								username: newUsername,
-								email: newEmail,
-								sshKey: newSshKey || "",
-							  };
-  
-							  if (config) {
-								const index = config.gitUsers.findIndex(
-								  (user) => user.username === selectedUsername
-								);
-								if (index !== undefined && index !== -1) {
-								  config.gitUsers[index] = updatedGitUser;
-								  writeConfigFile(config, CONFIG_FILE_PATH);
-  
-								  vscode.window.showInformationMessage(
-									`Git user "${selectedUsername}" has been updated.`
-								  );
-								}
-							  }
-							});
-						}
-					  });
-				  }
-				});
-			}
-		  }
-		});
-	}
+    "gituserswitcher.updateGitUser",
+    () => {
+      const savedUsernames = getSavedUsernames(CONFIG_FILE_PATH);
+      if (savedUsernames.length === 0) {
+        vscode.window.showInformationMessage("No saved Git usernames found.");
+        return;
+      }
+
+      vscode.window
+        .showQuickPick(savedUsernames, {
+          placeHolder: "Select a Git username to update",
+        })
+        .then((selectedUsername) => {
+          if (selectedUsername) {
+            const gitUserToUpdate = config?.gitUsers.find(
+              (user) => user.username === selectedUsername
+            );
+            if (gitUserToUpdate) {
+              vscode.window
+                .showInputBox({
+                  prompt: "Enter new Git username",
+                  value: gitUserToUpdate.username,
+                })
+                .then((newUsername) => {
+                  if (newUsername) {
+                    vscode.window
+                      .showInputBox({
+                        prompt: "Enter new Git email",
+                        value: gitUserToUpdate.email,
+                      })
+                      .then((newEmail) => {
+                        if (newEmail) {
+                          vscode.window
+                            .showInputBox({
+                              prompt: "Enter new SSH key name",
+                              value: gitUserToUpdate.sshKey,
+                            })
+                            .then((newSshKey) => {
+                              const updatedGitUser: GitUser = {
+                                username: newUsername,
+                                email: newEmail,
+                                sshKey: newSshKey || "",
+                              };
+
+                              if (config) {
+                                const index = config.gitUsers.findIndex(
+                                  (user) => user.username === selectedUsername
+                                );
+                                if (index !== undefined && index !== -1) {
+                                  config.gitUsers[index] = updatedGitUser;
+                                  writeConfigFile(config, CONFIG_FILE_PATH);
+
+                                  vscode.window.showInformationMessage(
+                                    `Git user "${selectedUsername}" has been updated.`
+                                  );
+                                }
+                              }
+                            });
+                        }
+                      });
+                  }
+                });
+            }
+          }
+        });
+    }
   );
-  
+
   // Register a command to select and switch to a saved Git username
   const selectGitUserCommand = vscode.commands.registerCommand(
     "gituserswitcher.selectGitUser",
@@ -238,15 +227,9 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             // Refresh savedUsernames
-            const updatedSavedUsernames = getSavedUsernames(CONFIG_FILE_PATH);
-
+            let config = readConfigFile(CONFIG_FILE_PATH);
             // Update status bar item
-            if (updatedSavedUsernames.length > 0) {
-              statusBarItem.text = `$(user) Git User: ${updatedSavedUsernames[0]}`;
-            } else {
-              statusBarItem.text = "$(user) Git User: Unknown";
-            }
-            statusBarItem.show();
+            updateStatusBarItem(statusBarItem, config);
           }
         });
     }
@@ -255,7 +238,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Add the deleteGitUserCommand to the extension context
   // Add the status bar item and commands to the extension context
   context.subscriptions.push(statusBarItem);
-  context.subscriptions.push(gitUserActivateCommand);
   context.subscriptions.push(addGitUserCommand);
   context.subscriptions.push(selectGitUserCommand);
   context.subscriptions.push(viewSavedUsernamesCommand);

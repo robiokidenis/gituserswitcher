@@ -29,15 +29,64 @@ export function writeConfigFile(config: Config, configFilePath: string) {
   fs.writeFileSync(configFilePath, jsonData, "utf8");
 }
 
+export function updateStatusBarItem(
+  statusBarItem: vscode.StatusBarItem,
+  config: Config | undefined
+) {
+  // Update the status bar item
+  if (config && config.gitUsers.length > 0) {
+    const firstGitUser = config.gitUsers[0];
+    statusBarItem.text = `$(user) Git User: ${firstGitUser.username}`;
+  } else {
+    statusBarItem.text = "$(user) Git User: Unknown - Please Add";
+  }
+  statusBarItem.show();
+}
+
 export function getCurrentGitUser(
   callback: (gitUser: string | undefined) => void
 ) {
-  exec("git config user.name", (error, stdout, stderr) => {
-    if (error || stderr) {
-      callback(undefined);
+  const childProcess = spawn("git", ["config", "user.name"]);
+
+  let gitUser = "";
+  childProcess.stdout.on("data", (data) => {
+    gitUser += data.toString();
+  });
+
+  childProcess.on("close", (code) => {
+    if (code === 0) {
+      callback(gitUser.trim());
     } else {
-      const gitUser = stdout.trim();
-      callback(gitUser);
+      callback(undefined);
+    }
+  });
+}
+export function getCurrentGitEmail(
+  callback: (gitEmail: string | undefined) => void
+) {
+  const childProcess = spawn("git", ["config", "user.email"]);
+
+  let gitEmail = "";
+  childProcess.stdout.on("data", (data) => {
+    gitEmail += data.toString();
+  });
+
+  childProcess.on("close", (code) => {
+    if (code === 0) {
+      callback(gitEmail.trim());
+    } else {
+      callback(undefined);
+    }
+  });
+}
+export function getCurrentGitSshKey(callback: (sshKey: string | null) => void) {
+  exec("git config user.sshKey", (error, stdout) => {
+    if (error) {
+      console.error("Error getting current Git SSH key:", error);
+      callback(null);
+    } else {
+      const sshKey = stdout.trim();
+      callback(sshKey);
     }
   });
 }
@@ -100,13 +149,13 @@ export function switchToGitUser(
             // Prompt the user to generate the SSH key
             vscode.window
               .showInformationMessage(
-                `SSH key file not found: ${sshKeyPath}
+                `SSH key file not found: '${sshKeyPath}'
                 Do you want to generate an SSH key for this Git user?`,
-                "Yes",
+                "Yes (Be Own Risk)",
                 "No"
               )
               .then((choice) => {
-                if (choice === "Yes") {
+                if (choice === "Yes (Be Own Risk)") {
                   vscode.window.showInformationMessage("Generating ssh key..");
                   generateSshKey(selectedGitUser, absolutePath);
                 }

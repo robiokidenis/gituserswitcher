@@ -2,7 +2,7 @@
   "name": "gituserswitcher",
   "displayName": "gitUserSwitcher",
   "description": "Git User Switcher is a Visual Studio Code extension that allows you to easily switch between multiple Git user identities within your projects. With this extension, you can quickly toggle between different usernames, email addresses, and SSH keys associated with your Git repositories. It provides a convenient way to manage and switch between Git profiles, enabling seamless collaboration and efficient workflow when working with multiple Git accounts or projects",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -52,10 +52,6 @@
   "homepage": "https://github.com/robiokidenis/gituserswitcher/blob/main/README.md",
   "contributes": {
     "commands": [
-      {
-        "command": "gituserswitcher.GitUserActivate",
-        "title": "GitUserSwitcher: Activate Git User"
-      },
       {
         "command": "gituserswitcher.addGitUser",
         "title": "GitUserSwitcher: Add New Git User"
